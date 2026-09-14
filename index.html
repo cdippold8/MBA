@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBA Core — Product & Tech Track</title>
+<meta name="theme-color" content="#161f2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MBA Core">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#161f2b;
+    --ink-soft:#2b3646;
+    --paper:#f6f2ea;
+    --paper-raised:#fffdf9;
+    --rule:#dcd3c2;
+    --ochre:#b9832f;
+    --ochre-deep:#8f631f;
+    --teal:#3e6b64;
+    --teal-soft:#e4ece9;
+    --text:#25201a;
+    --text-soft:#5c5548;
+    --danger:#a24a3a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.serif{font-family:'Source Serif 4',serif;}
+  .app{display:flex;min-height:100vh;}
+
+  /* ---- Sidebar ---- */
+  .rail{width:280px;flex-shrink:0;background:var(--ink);color:#e7e2d8;display:flex;flex-direction:column;}
+  .rail-head{padding:26px 22px 18px;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .rail-head .kicker{font-size:12.5px;letter-spacing:0.02em;color:#a9b3c4;margin-bottom:6px;}
+  .rail-head h1{font-size:22px;line-height:1.25;margin:0 0 14px;color:#fff;font-weight:600;}
+  .progress-wrap{margin-top:6px;}
+  .progress-bar{height:6px;border-radius:4px;background:rgba(255,255,255,0.12);overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--ochre),#d6a35c);border-radius:4px;transition:width .4s ease;}
+  .progress-label{font-size:12.5px;color:#a9b3c4;margin-top:7px;}
+
+  .nav{flex:1;overflow-y:auto;padding:10px 0 18px;}
+  .nav-section{margin-bottom:2px;}
+  .nav-section-btn{width:100%;text-align:left;background:none;border:none;color:#e7e2d8;padding:13px 22px;font-family:'Inter';font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px;}
+  .nav-section-btn:hover{background:rgba(255,255,255,0.05);}
+  .nav-section-btn .count{font-size:12px;font-weight:500;color:#8b95a8;font-variant-numeric:tabular-nums;}
+  .nav-section-btn .chev{transition:transform .2s ease;color:#8b95a8;font-size:11px;}
+  .nav-section.open .chev{transform:rotate(90deg);}
+  .nav-lessons{display:none;padding:0 12px 10px 22px;}
+  .nav-section.open .nav-lessons{display:block;}
+  .nav-lesson{width:100%;text-align:left;background:none;border:none;color:#b7bfcd;padding:9px 10px;font-size:13.5px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:9px;line-height:1.35;}
+  .nav-lesson:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .nav-lesson.active{background:rgba(185,131,47,0.18);color:#fff;}
+  .nav-lesson .dot{width:15px;height:15px;border-radius:50%;border:1.5px solid #6d7789;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+  .nav-lesson.done .dot{background:var(--ochre);border-color:var(--ochre);color:var(--ink);}
+  .nav-lesson .lt{flex:1;}
+  .nav-lesson .mins{font-size:11px;color:#778091;font-variant-numeric:tabular-nums;}
+
+  /* ---- Main ---- */
+  .main{flex:1;min-width:0;display:flex;justify-content:center;padding:44px 32px 80px;}
+  .sheet{width:100%;max-width:660px;}
+  .lesson-eyebrow{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-soft);margin-bottom:10px;}
+  .lesson-eyebrow .pill{background:var(--teal-soft);color:var(--teal);padding:3px 10px;border-radius:20px;font-weight:600;font-size:12px;}
+  .lesson-title{font-size:32px;font-weight:700;line-height:1.2;margin:0 0 6px;}
+  .lesson-sub{color:var(--text-soft);font-size:15.5px;line-height:1.5;margin:0 0 30px;}
+
+  .content p{font-size:16.5px;line-height:1.72;margin:0 0 18px;color:var(--text);}
+  .content h3{font-size:18.5px;margin:32px 0 12px;font-weight:600;}
+  .content h3 .fnum{color:var(--ochre-deep);font-family:'JetBrains Mono',monospace;font-size:14px;margin-right:9px;}
+  .content ul,.content ol{margin:0 0 18px;padding-left:22px;}
+  .content li{font-size:16px;line-height:1.65;margin-bottom:9px;color:var(--text);}
+  .content li strong{color:var(--ink);}
+  .content .framebox{background:var(--paper-raised);border:1px solid var(--rule);border-left:3px solid var(--ochre);border-radius:4px;padding:16px 20px;margin:22px 0;}
+  .content .framebox .flabel{font-size:11.5px;font-weight:700;letter-spacing:0.03em;color:var(--ochre-deep);margin-bottom:8px;}
+  .content .framebox p:last-child{margin-bottom:0;}
+  .content .apply{background:var(--teal-soft);border-radius:4px;padding:16px 20px;margin:26px 0 8px;}
+  .content .apply .flabel{font-size:11.5px;font-weight:700;letter-spacing:0.03em;color:var(--teal);margin-bottom:8px;}
+  .content .apply p{margin-bottom:0;color:#213d38;}
+
+  .lesson-nav{display:flex;justify-content:space-between;align-items:center;margin-top:46px;padding-top:22px;border-top:1px solid var(--rule);gap:14px;}
+  .navbtn{background:var(--ink);color:#fff;border:none;padding:12px 20px;border-radius:6px;font-family:'Inter';font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;}
+  .navbtn:hover{background:var(--ink-soft);}
+  .navbtn.ghost{background:none;color:var(--text-soft);border:1px solid var(--rule);}
+  .navbtn.ghost:hover{background:var(--paper-raised);color:var(--text);}
+  .navbtn:disabled{opacity:0.35;cursor:default;pointer-events:none;}
+  .navbtn.done{background:var(--teal);}
+
+  .home{max-width:660px;}
+  .home h2{font-size:26px;margin:0 0 10px;}
+  .home>p{color:var(--text-soft);font-size:16px;line-height:1.65;margin:0 0 34px;}
+  .home-grid{display:grid;gap:14px;}
+  .home-card{background:var(--paper-raised);border:1px solid var(--rule);border-radius:8px;padding:20px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+  .home-card:hover{border-color:var(--ochre);}
+  .home-card h4{margin:0 0 5px;font-size:17px;font-family:'Source Serif 4';font-weight:600;}
+  .home-card p{margin:0;font-size:13.5px;color:var(--text-soft);}
+  .home-card .stat{font-size:12.5px;color:var(--text-soft);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  .menu-toggle{display:none;}
+  @media (max-width:880px){
+    .rail{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .25s ease;z-index:20;box-shadow:8px 0 30px rgba(0,0,0,0.25);}
+    .rail.open{transform:translateX(0);}
+    .main{padding:70px 20px 60px;}
+    .lesson-title{font-size:26px;}
+    .menu-toggle{display:flex;position:fixed;top:14px;left:16px;z-index:21;background:var(--ink);color:#fff;border:none;width:40px;height:40px;border-radius:8px;align-items:center;justify-content:center;font-size:18px;cursor:pointer;}
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:19;}
+    .scrim.show{display:block;}
+  }
+</style>
+</head>
+<body>
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div class="scrim" id="scrim"></div>
+<div class="app">
+  <nav class="rail" id="rail">
+    <div class="rail-head">
+      <div class="kicker">SELF-STUDY TRACK</div>
+      <h1>MBA Core — Product &amp; Tech</h1>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0 of 21 lessons complete</div>
+      </div>
+    </div>
+    <div class="nav" id="navSections"></div>
+  </nav>
+
+  <main class="main">
+    <div class="sheet" id="sheet"></div>
+  </main>
+</div>
+
+<script>
+const SECTIONS = [
+{
+  id:'strategy', title:'Strategy & Competitive Advantage',
+  blurb:'How businesses choose where to compete and how to build defensibility — the layer above the roadmap.',
+  lessons:[
+    {
+      title:'Competitive Positioning: Five Forces & Generic Strategies',
+      minutes:18,
+      html:`
+      <p>Before a company writes a roadmap, it has to answer a cruder question: in this market, can anyone actually make money, and can we make more of it than the next guy? Michael Porter's frameworks are the classic tools for answering that, and they still show up in board decks constantly — so it's worth knowing them cold rather than in vague outline.</p>
+      <h3><span class="fnum">01</span>Five Forces: how attractive is this market?</h3>
+      <p>Porter's Five Forces breaks industry profitability into five pressures. The stronger these forces, the harder it is for anyone in the industry to sustain margin:</p>
+      <ul>
+        <li><strong>Threat of new entrants</strong> — how easy is it for a new competitor to show up? Low switching costs and low capital requirements mean margins erode fast (think: DTC apparel). High regulatory or capital barriers protect incumbents (think: chip fabs).</li>
+        <li><strong>Bargaining power of suppliers</strong> — if you depend on one cloud vendor, one chip supplier, or one data provider, they can squeeze your margins.</li>
+        <li><strong>Bargaining power of buyers</strong> — concentrated, price-sensitive, well-informed customers can force prices down. Enterprise software sold to a handful of massive accounts has this problem; long-tail SMB sales usually doesn't.</li>
+        <li><strong>Threat of substitutes</strong> — not direct competitors, but different solutions to the same job. Zoom's real substitute early on wasn't another video tool, it was "just don't have the meeting" or "use the phone."</li>
+        <li><strong>Rivalry among existing competitors</strong> — how many players are fighting for the same customers, and how differentiated are they? Commodity markets with many similar players compete mostly on price.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">WHY THIS MATTERS FOR A PM</div>
+        <p>When you're asked "why don't we just build what the market leader has," Five Forces gives you language for the real answer: it's rarely about feature parity, it's about whether the underlying market structure lets a new entrant capture value at all. It's also the fastest way to sanity-check a new market expansion pitch — map the five forces before you map the feature set.</p>
+      </div>
+      <h3><span class="fnum">02</span>Generic strategies: how do you compete once you're in?</h3>
+      <p>Porter argued a company has to choose a lane, or risk being "stuck in the middle" — neither cheap enough to win on price nor differentiated enough to win on value:</p>
+      <ul>
+        <li><strong>Cost leadership</strong> — win by being the lowest-cost producer, then either undercut on price or pocket superior margin. Requires scale, process discipline, and usually a broad target market.</li>
+        <li><strong>Differentiation</strong> — win by being meaningfully better on a dimension customers pay for: quality, brand, service, integration depth, ease of use. Requires that the differentiation is hard to copy and that customers actually value it enough to pay for it.</li>
+        <li><strong>Focus</strong> — apply either cost leadership or differentiation to a narrow segment rather than the whole market, and win that segment decisively rather than being mediocre everywhere.</li>
+      </ul>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take your own product. Write one sentence naming which generic strategy it's actually pursuing — not which one you wish it were pursuing. If you can't name one clearly, that's usually a sign the product positioning is muddled, not that the framework doesn't apply.</p>
+      </div>`
+    },
+    {
+      title:'Business Model Design & Defensible Moats',
+      minutes:17,
+      html:`
+      <p>"Strategy" and "business model" get used interchangeably, but they answer different questions. Strategy is where you choose to compete; business model is how the company actually captures value once it's there — who pays, for what, and why a competitor can't just copy it tomorrow.</p>
+      <h3><span class="fnum">01</span>The business model canvas, compressed</h3>
+      <p>Strip the full canvas down to the four questions that matter most for a tech product:</p>
+      <ul>
+        <li><strong>Value proposition</strong> — what job gets done, for whom, better than the alternative (including "do nothing").</li>
+        <li><strong>Revenue model</strong> — subscription, usage-based, transaction fee, ads, licensing. This choice shapes incentives: usage-based pricing aligns your revenue with customer value delivered; flat subscription doesn't, which is why so many software companies are migrating toward consumption pricing.</li>
+        <li><strong>Cost structure</strong> — what's fixed (R&D, infrastructure) versus variable (compute per API call, support tickets per customer). High fixed / low variable cost structures reward scale aggressively — this is why software has different economics than services.</li>
+        <li><strong>Channel</strong> — how you reach and acquire customers: sales-led, product-led, partner-led, marketplace. This one decision drives most of your org design downstream.</li>
+      </ul>
+      <h3><span class="fnum">02</span>Moats: the seven classic types</h3>
+      <p>A "moat" is a reason a competitor with equal resources still can't take your customers. Warren Buffett popularized the term; in tech it's worth being specific about which kind you actually have, because most claimed moats aren't real ones:</p>
+      <ul>
+        <li><strong>Network effects</strong> — the product gets more valuable as more people use it (marketplaces, communications tools). The strongest moat in software, but rare — most products don't have true network effects even when teams claim they do.</li>
+        <li><strong>Switching costs</strong> — data lock-in, workflow embedding, integration depth. This is why "rip and replace" enterprise software deals are so hard to win even with a better product.</li>
+        <li><strong>Economies of scale</strong> — per-unit cost drops as volume grows (infrastructure, data-hungry ML).</li>
+        <li><strong>Brand</strong> — trust and preference that let you charge more or convert faster for the same objective quality.</li>
+        <li><strong>Proprietary technology / data</strong> — a defensible asset competitors can't easily replicate, particularly compounding data advantages (more usage → better model/product → more usage).</li>
+        <li><strong>Regulatory or legal protection</strong> — patents, licenses, compliance certifications that raise the bar to entry.</li>
+        <li><strong>Counter-positioning</strong> — a business model an incumbent structurally can't copy without cannibalizing itself.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">A CHEAP FEATURE ISN'T A MOAT</div>
+        <p>The most common strategy mistake in product orgs is treating a feature advantage as a moat. Features get copied in a quarter. Real moats come from structural dynamics — data compounding, switching costs, network effects — not from being first to ship something.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>List your product's top 3 competitive advantages. For each, ask: "if a well-funded competitor copied this exactly, would it close the gap in under a year?" If yes, it's an advantage, not a moat — useful to know when you're prioritizing what's actually worth defending.</p>
+      </div>`
+    },
+    {
+      title:'Platform & Network Effects Strategy',
+      minutes:19,
+      html:`
+      <p>Most PM/tech strategy conversations eventually run into "should we be a platform?" This lesson gives you the vocabulary to answer that seriously instead of aspirationally.</p>
+      <h3><span class="fnum">01</span>Product vs. platform vs. ecosystem</h3>
+      <ul>
+        <li><strong>Product</strong> — you build the whole value chain yourself and sell it directly to an end user.</li>
+        <li><strong>Platform</strong> — you provide infrastructure that lets third parties create value on top of it (APIs, app stores, marketplaces). Your job shifts from "build the best feature" to "make it easy and worthwhile for others to build on you."</li>
+        <li><strong>Ecosystem</strong> — a platform plus the community of complementors, developers, and partners that depend on and extend it. The strategic asset isn't the software anymore, it's the network of relationships.</li>
+      </ul>
+      <h3><span class="fnum">02</span>The types of network effects</h3>
+      <p>Not all network effects are equal, and this distinction matters for prioritization:</p>
+      <ul>
+        <li><strong>Direct (same-side)</strong> — more users of the same type make the product better for other users of that type (e.g., a messaging app: more people on it, more useful to everyone).</li>
+        <li><strong>Indirect (cross-side)</strong> — more of one user type attracts more of another (marketplaces: more buyers attract more sellers, and vice versa). This is why marketplaces obsess over "chicken-and-egg" — you often have to subsidize one side to bootstrap the other.</li>
+        <li><strong>Data network effects</strong> — more usage generates more data, which improves the product (often via ML), which attracts more usage. Common in recommendation and personalization-heavy products, but weaker than direct network effects because data value often has diminishing returns and competitors can license or generate substitute data.</li>
+      </ul>
+      <h3><span class="fnum">03</span>The cold-start problem</h3>
+      <p>Every network-effect product has to survive the period before the network effect kicks in, when the product has little value because it has few users. Common bootstrapping tactics: seed single-player value (a product useful even with zero network — e.g., a note-taking tool that's also a collaboration tool), come from an adjacent existing network (Facebook starting at Harvard), subsidize one side of a marketplace, or fake density in a narrow niche/geography before expanding.</p>
+      <div class="framebox">
+        <div class="flabel">A HONEST CHECK</div>
+        <p>"We want to be a platform" is one of the most overused phrases in product strategy, usually said without a real answer to: who builds on us, what do they get that they can't get building it themselves, and how do we make money when they do? If those three questions don't have crisp answers, it's not platform strategy yet — it's an API with a strategy deck attached.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>For a platform idea you're considering, write the cold-start plan in one paragraph: which single-player value ships first, which side of the network you'll subsidize or seed manually, and what the trigger is for pulling that subsidy back.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'finance', title:'Finance & Unit Economics',
+  blurb:'The numbers a PM needs to read a P&L, judge a business model, and argue for investment credibly.',
+  lessons:[
+    {
+      title:'Reading Financial Statements Without an Accounting Degree',
+      minutes:19,
+      html:`
+      <p>You don't need to be able to close the books to be dangerous in a finance conversation. You need to know what each statement is actually answering, and which two or three lines matter for your decisions.</p>
+      <h3><span class="fnum">01</span>The three statements, and the one question each answers</h3>
+      <ul>
+        <li><strong>Income statement (P&L)</strong> — "did we make money this period?" Revenue minus costs equals profit, over a stretch of time (a quarter, a year). Key lines: revenue, gross margin (revenue minus cost of goods/services sold), operating expenses (R&D, sales & marketing, G&A), operating income, net income.</li>
+        <li><strong>Balance sheet</strong> — "what do we own and owe, right now?" A snapshot at a single point in time: assets (cash, receivables, equipment) equal liabilities (debt, payables) plus equity (what's left for owners). It's the only statement that must literally balance.</li>
+        <li><strong>Cash flow statement</strong> — "where did the cash actually go?" Profit on the income statement isn't the same as cash in the bank — a company can be profitable on paper and still run out of cash (common when receivables pile up or inventory ties up capital). Cash flow splits into operating, investing, and financing activities.</li>
+      </ul>
+      <h3><span class="fnum">02</span>The metrics that actually come up in product conversations</h3>
+      <ul>
+        <li><strong>Gross margin</strong> — revenue minus the direct cost of delivering the product (hosting, compute, support), divided by revenue. Software companies target 70–85%+ because marginal delivery cost is low; this is the number that determines how much room there is to invest in growth.</li>
+        <li><strong>Burn rate & runway</strong> — how much cash the company spends per month, and how many months of cash remain at that rate. This is the real deadline behind most "we need to hit this milestone by Q3" conversations.</li>
+        <li><strong>EBITDA</strong> — earnings before interest, taxes, depreciation, and amortization — a rough proxy for operating cash generation, used to compare companies without differences in capital structure or accounting choices distorting the picture.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">WHY A PM SHOULD CARE</div>
+        <p>Every roadmap prioritization conversation is implicitly a capital allocation conversation. Knowing whether the company is gross-margin-constrained, cash-constrained, or growth-constrained changes what "the right thing to build next" actually means — a cash-constrained company should prioritize different work than a well-funded one chasing growth.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Find your company's most recent gross margin (public companies publish it; ask finance if you're private). Ask yourself: does the current roadmap push margin up, down, or sideways? If you don't know, that's worth finding out before your next roadmap review.</p>
+      </div>`
+    },
+    {
+      title:'Unit Economics & SaaS Metrics',
+      minutes:20,
+      html:`
+      <p>This is the vocabulary that determines whether a subscription or usage-based business actually works — and it's the language investors, finance, and your CEO use to judge whether the business is healthy, independent of any single quarter's revenue number.</p>
+      <h3><span class="fnum">01</span>The core metrics</h3>
+      <ul>
+        <li><strong>CAC (Customer Acquisition Cost)</strong> — fully loaded sales & marketing spend divided by new customers acquired in that period. "Fully loaded" means including salaries, tools, ad spend — not just media cost.</li>
+        <li><strong>LTV (Customer Lifetime Value)</strong> — the total gross margin a customer generates over their relationship with you. Roughly: (average revenue per customer × gross margin %) ÷ churn rate.</li>
+        <li><strong>LTV:CAC ratio</strong> — the classic health check. Below 1 means you lose money on every customer. Around 3:1 is considered healthy for many SaaS businesses — enough margin to fund growth, not so much that you're under-investing in acquisition.</li>
+        <li><strong>CAC payback period</strong> — how many months of gross margin it takes to recoup the cost of acquiring a customer. Under 12 months is typically considered strong for SaaS; it matters because it tells you how much cash you need on hand to fund growth, independent of the LTV:CAC ratio.</li>
+        <li><strong>Churn (logo vs. revenue/net)</strong> — logo churn is % of customers lost; revenue churn accounts for expansion and contraction too. <strong>Net revenue retention (NRR)</strong> — revenue from existing customers this period vs. last, including upsells and downgrades, excluding new logos. NRR above 100% means the existing base is growing even before new sales — the single most-watched metric in enterprise SaaS right now.</li>
+        <li><strong>Magic Number</strong> — a rough efficiency measure: net new ARR in a quarter, annualized, divided by prior quarter's sales & marketing spend. Above ~0.75 suggests it's efficient to keep pouring money into growth; below suggests fixing the engine before spending more on it.</li>
+      </ul>
+      <h3><span class="fnum">02</span>Usage-based vs. seat-based pricing economics</h3>
+      <p>Seat-based pricing (per user/month) is predictable and easy to forecast, but caps revenue growth to headcount growth and can misalign price from value delivered (a light user pays the same as a power user). Usage-based pricing (per API call, per minute, per generated asset) aligns revenue with delivered value and removes the ceiling, but makes revenue less predictable and forecasting harder — which is exactly why finance teams push back on migrating pricing models even when the product logic is sound.</p>
+      <div class="framebox">
+        <div class="flabel">WHY THIS MATTERS FOR A PM</div>
+        <p>Features that reduce churn or increase expansion (NRR) are frequently underrated relative to features that drive new logos, because new-logo growth is more visible. In a mature product, a 2-point improvement in NRR is often worth more to the business than a splashy new-customer feature — worth knowing when you're building the case for retention work.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Pick a feature currently on your roadmap. Name which single metric above it's actually meant to move — CAC, churn, NRR, payback period. If you can't name one, that's a sign the business case needs sharpening before the next prioritization conversation.</p>
+      </div>`
+    },
+    {
+      title:'Pricing Strategy & Willingness to Pay',
+      minutes:16,
+      html:`
+      <p>Pricing is the highest-leverage lever in a business and the one product teams touch least often, usually out of fear. A basic grounding in pricing strategy changes that.</p>
+      <h3><span class="fnum">01</span>Three ways to set a price</h3>
+      <ul>
+        <li><strong>Cost-plus</strong> — cost to produce, plus a margin. Simple, defensible, but ignores what the customer actually values — you can leave enormous money on the table, or price yourself out, purely by accident.</li>
+        <li><strong>Competitor-based</strong> — price relative to alternatives in market. Fast to justify, but locks you into someone else's strategy and race-to-the-bottom dynamics in commodity categories.</li>
+        <li><strong>Value-based</strong> — price according to the value the customer receives, captured as a fraction of it. Hardest to execute because it requires actually knowing what value you create, but it's the only approach with no structural ceiling on margin.</li>
+      </ul>
+      <h3><span class="fnum">02</span>Finding willingness to pay: Van Westendorp</h3>
+      <p>The Van Westendorp Price Sensitivity Meter asks customers four questions about a product: at what price is it (1) so cheap you'd question quality, (2) a bargain, (3) getting expensive but still worth it, (4) too expensive to consider. Plotting the four curves across respondents reveals an acceptable price range and an "optimal price point" where the fewest people are deterred either way. It's a survey method, not a perfect predictor, but it's dramatically better than guessing or copying a competitor's number.</p>
+      <h3><span class="fnum">03</span>Packaging and price discrimination</h3>
+      <p>Most software pricing isn't one price — it's a set of tiers designed to capture different willingness to pay from different segments (good-better-best, usage tiers, feature gating). The craft is in choosing the right "metric" to charge on (seats, usage, features unlocked) so that price scales naturally with the value a given customer segment gets, rather than a one-size price that under-charges your best customers and over-charges your smallest ones.</p>
+      <div class="framebox">
+        <div class="flabel">THE MOST COMMON PRICING MISTAKE</div>
+        <p>Underpricing, not overpricing. Teams default to a low price to reduce sales friction and defer the harder conversation about value — but underpricing starves the roadmap of the margin needed to build the next thing well, and it's much harder to raise prices later than to launch slightly aggressive and discount your way in.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Write one sentence naming the "pricing metric" your product charges on today (seats, usage, tier, flat fee). Ask whether that metric scales with the value a customer actually receives — if a customer got 10x the value, would they naturally pay something closer to 10x?</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'marketing', title:'Marketing & Positioning',
+  blurb:'How companies decide who to sell to, what to say, and how to grow — the layer between strategy and the roadmap.',
+  lessons:[
+    {
+      title:'Segmentation, Targeting, Positioning & Jobs-to-be-Done',
+      minutes:18,
+      html:`
+      <p>STP is the classical marketing sequence, and Jobs-to-be-Done is the modern lens most product orgs now overlay on top of it. Together they answer: who do we sell to, and why do they actually buy?</p>
+      <h3><span class="fnum">01</span>STP: Segmentation, Targeting, Positioning</h3>
+      <ul>
+        <li><strong>Segmentation</strong> — split the market into groups with meaningfully different needs (by firmographics, use case, behavior — not just demographics, which is usually too blunt for B2B).</li>
+        <li><strong>Targeting</strong> — choose which segment(s) to pursue, based on segment size, willingness to pay, competitive intensity, and fit with your capabilities. Targeting everyone is targeting no one.</li>
+        <li><strong>Positioning</strong> — define how you want the target segment to perceive you relative to alternatives. Good positioning is a claim about a specific, valued difference — not a list of features.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">APRIL DUNFORD'S POSITIONING CANVAS</div>
+        <p>A practical structure for positioning: (1) competitive alternatives — what would the customer do if you didn't exist? (2) unique attributes — what do you have that alternatives don't? (3) value — what does that attribute enable for the customer? (4) target customer — who cares most about that value? (5) market category — what frame of reference makes your value obvious? Most positioning problems trace back to a wrong or fuzzy answer to #1 — teams that don't know their real competitive alternative can't position against it.</p>
+      </div>
+      <h3><span class="fnum">02</span>Jobs-to-be-Done</h3>
+      <p>JTBD reframes the customer not as a demographic profile but as someone "hiring" a product to make progress on a specific job in a specific circumstance. The classic formulation: "when [situation], I want to [motivation], so I can [expected outcome]." The insight underneath it: customers don't want a drill, they want a hole — and often they don't even want a hole, they want to hang a picture, and really they want a home that feels put-together. The job is the ultimate progress being sought; the product is just the current best means to it.</p>
+      <p>JTBD is powerful for product teams because it explains why customers switch: not because a competitor has more features, but because the competitor does the job better, cheaper, or with less friction in that specific circumstance.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Write your product's positioning using the five-part structure above, one sentence each. If step 1 (competitive alternatives) is hard to answer honestly, that's usually the real problem — not the messaging.</p>
+      </div>`
+    },
+    {
+      title:'Go-to-Market Strategy',
+      minutes:17,
+      html:`
+      <p>A great product with the wrong go-to-market motion fails just as often as a mediocre product with the right one. GTM is the system for turning positioning into pipeline and revenue.</p>
+      <h3><span class="fnum">01</span>The three core motions</h3>
+      <ul>
+        <li><strong>Sales-led growth (SLG)</strong> — humans sell to humans, typically for complex, high-ACV (annual contract value), multi-stakeholder deals. Necessary when the buying decision requires custom configuration, trust-building, or security/procurement review.</li>
+        <li><strong>Product-led growth (PLG)</strong> — the product itself drives acquisition, conversion, and expansion, usually via free trials or freemium tiers, self-serve signup, and in-product upgrade prompts. Works best when time-to-value is fast and the buyer is also the user.</li>
+        <li><strong>Marketing-led growth</strong> — content, SEO, brand, and demand generation drive awareness and inbound interest, which then feeds either a sales or self-serve motion. Rarely stands alone — usually the top of funnel for one of the other two.</li>
+      </ul>
+      <p>Most real companies blend these — PLG for smaller accounts and self-serve entry, sales-assist or full sales-led for enterprise, with marketing feeding both. The strategic question isn't "which one" so much as "which one leads, and where does the other kick in."</p>
+      <h3><span class="fnum">02</span>The GTM fit questions</h3>
+      <ul>
+        <li><strong>ACV vs. sales cost</strong> — if the deal size doesn't cover the cost of a human sales cycle, it has to be self-serve or it loses money.</li>
+        <li><strong>Who's the buyer vs. the user?</strong> — when they're different people (IT buys, engineers use), you need a motion that sells to both, which usually means sales-assist even for a technically self-serve product.</li>
+        <li><strong>Time to value</strong> — how fast can someone realize the product works? Fast time-to-value supports self-serve; slow time-to-value (data integration, custom setup) usually requires guided onboarding or sales support.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">WHY THIS MATTERS FOR A PM</div>
+        <p>GTM motion should shape the roadmap, not just marketing. A PLG motion demands investment in self-serve onboarding, in-product upgrade flows, and usage-based billing infrastructure. A sales-led motion demands investment in admin controls, security certifications, and integrations that unblock procurement. Building PLG-style growth loops into a fundamentally sales-led product (or vice versa) is one of the most common wasted-roadmap mistakes.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Name your product's dominant GTM motion honestly, then check whether your current roadmap's top 3 items actually serve that motion — or whether they quietly assume a different one.</p>
+      </div>`
+    },
+    {
+      title:'Brand, Growth Loops & Retention Marketing',
+      minutes:15,
+      html:`
+      <p>Growth used to mean funnel — get more people in the top. The more durable version of growth thinking treats the product itself as the acquisition engine.</p>
+      <h3><span class="fnum">01</span>Funnels vs. loops</h3>
+      <p>A funnel is linear: awareness → consideration → conversion → retention, with growth requiring continuous new input at the top (usually paid). A <strong>growth loop</strong> is circular: an output of the system becomes an input that drives more of the system, without needing fresh paid spend each cycle. Classic examples: a referral program where invited users become inviters; user-generated content that ranks in search and pulls in new users; a collaborative tool where inviting a colleague creates a new account for that colleague.</p>
+      <p>Loops compound; funnels have to be continuously refueled. The strategic shift most growth-mature companies make is from "how do we fill the funnel" to "which loop can we build, and how do we make each cycle of it tighter and faster."</p>
+      <h3><span class="fnum">02</span>Brand as a retention and pricing lever</h3>
+      <p>Brand isn't logo and color palette — economically, it's the trust premium that lets you convert faster, charge more, and retain longer than an objectively similar competitor because switching feels riskier. In B2B especially, brand shows up as "nobody got fired for choosing X" — a real economic effect, not just sentiment.</p>
+      <h3><span class="fnum">03</span>The retention-first mindset</h3>
+      <p>Acquiring into a leaky bucket wastes CAC. The standard sequence for a growth-stage company: fix retention first (a feature that reduces churn compounds every cohort going forward), then fix the activation/onboarding funnel (getting new users to first value fast), and only then pour more into acquisition — because acquisition amplifies whatever retention and activation already are, good or bad.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Ask whether your product has any growth loop at all — a mechanism where usage by one user naturally creates exposure or value for another. If the honest answer is no, that's a legitimate strategic gap to raise, not just a marketing budget problem.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'pm', title:'Product Management Core',
+  blurb:'The operating frameworks for going from strategy to a shipped, measured product.',
+  lessons:[
+    {
+      title:'From Vision to Roadmap',
+      minutes:18,
+      html:`
+      <p>Product strategy sits between company strategy and the sprint backlog. Done well, it's the layer that makes every roadmap decision traceable back to a reason, instead of a list of stakeholder requests.</p>
+      <h3><span class="fnum">01</span>The strategy stack</h3>
+      <ul>
+        <li><strong>Vision</strong> — the long-term future state you're building toward, usually 3–5+ years out. Should be stable and inspiring, not a feature list.</li>
+        <li><strong>Strategy</strong> — the specific bets and sequencing chosen to move toward the vision, given current constraints and competitive reality. This is where trade-offs get made explicit: what you're choosing not to do matters as much as what you are.</li>
+        <li><strong>Objectives</strong> — the near-term (usually quarterly-to-annual) outcomes that indicate the strategy is working.</li>
+        <li><strong>Roadmap</strong> — the sequenced set of initiatives believed to drive those objectives. A roadmap is a hypothesis about how to achieve outcomes, not a delivery commitment — the best product orgs keep roadmaps outcome-framed ("reduce onboarding drop-off") rather than output-framed ("ship feature X") for exactly this reason.</li>
+      </ul>
+      <h3><span class="fnum">02</span>Now/Next/Later over Gantt charts</h3>
+      <p>Traditional roadmaps with fixed dates for 12+ months out create false confidence and get treated as promises. The Now/Next/Later format (sometimes with a "themes" layer above it) communicates confidence honestly: Now is committed and scoped, Next is planned but not fully scoped, Later is directional and subject to change as you learn more. This format also makes it easier to have an honest conversation with sales, leadership, and customers about what's actually locked in.</p>
+      <div class="framebox">
+        <div class="flabel">STRATEGY IS SAYING NO</div>
+        <p>The single most common failure in product strategy isn't picking the wrong bet — it's refusing to make the trade-off explicit, so the org ends up half-committing to five things instead of fully committing to two. A strategy document that doesn't name what you're deliberately not doing this cycle isn't really a strategy yet.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take your current roadmap and, for each Now item, write the one-sentence causal chain connecting it to a company objective ("we're building X because it should move metric Y, which the company needs because Z"). Any item where you can't complete that sentence is worth questioning.</p>
+      </div>`
+    },
+    {
+      title:'Discovery & Prioritization Frameworks',
+      minutes:20,
+      html:`
+      <p>Once strategy sets direction, discovery and prioritization decide what actually gets built, in what order. These are the frameworks that show up in every PM interview and every roadmap review — worth knowing precisely, not just by name.</p>
+      <h3><span class="fnum">01</span>Opportunity Solution Trees</h3>
+      <p>Teresa Torres's framework structures discovery as a tree: the desired <strong>outcome</strong> at the root, the <strong>opportunities</strong> (customer needs, pain points, desires) that could drive that outcome as branches, the <strong>solutions</strong> that could address each opportunity as sub-branches, and small <strong>experiments</strong> to test each solution's riskiest assumptions as the leaves. The value is structural: it forces teams to consider multiple opportunities and multiple solutions per opportunity, rather than falling in love with the first idea and skipping straight from outcome to solution.</p>
+      <h3><span class="fnum">02</span>Prioritization frameworks</h3>
+      <ul>
+        <li><strong>RICE</strong> — Reach (how many users/events affected in a period) × Impact (magnitude per user, usually a multiplier scale) × Confidence (% certainty in your estimates) ÷ Effort (person-time to build). Produces a comparable score across very different initiatives; most useful for comparing well-scoped, already-validated ideas against each other.</li>
+        <li><strong>Kano Model</strong> — classifies features by how satisfaction responds to investment: <em>basic</em> (expected — absence causes dissatisfaction, presence doesn't increase satisfaction, e.g. "the app doesn't crash"), <em>performance</em> (more is linearly better, e.g. speed), and <em>delighters</em> (unexpected — absence isn't noticed, presence creates disproportionate satisfaction). Useful for making sure a roadmap isn't 100% basics (nothing to excite anyone) or 100% delighters (foundation is shaky).</li>
+        <li><strong>ICE</strong> — Impact × Confidence × Ease, a faster, rougher cousin of RICE often used for quick growth/experimentation prioritization rather than full roadmap planning.</li>
+        <li><strong>Cost of Delay / CD3</strong> — Cost of Delay divided by Duration, from a Shape Up/lean lineage — prioritizes not just by value but by urgency, recognizing that some high-value work is also time-sensitive (a competitive gap closing, a compliance deadline) in a way that pure impact scoring misses.</li>
+      </ul>
+      <div class="framebox">
+        <div class="flabel">THE HONEST LIMIT OF SCORING FRAMEWORKS</div>
+        <p>Every scoring framework is only as good as its inputs, and Reach/Impact/Confidence numbers are frequently invented to justify a decision already made. Their real value isn't the score — it's the forced conversation about assumptions when two people disagree sharply on an input. Treat the disagreement as the signal, not the final number.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take two roadmap items you both believe are similarly important. RICE-score them independently from a colleague, then compare inputs, not just outputs. Wherever your Confidence or Reach numbers diverge most, that's the real open question worth resolving before the next planning cycle.</p>
+      </div>`
+    },
+    {
+      title:'Shipping & Measuring: OKRs and North Star Metrics',
+      minutes:17,
+      html:`
+      <p>Shipping something and shipping something that mattered are different achievements. This lesson covers the goal-setting and measurement layer that closes that gap.</p>
+      <h3><span class="fnum">01</span>OKRs done properly</h3>
+      <p>Objectives and Key Results: the Objective is a qualitative, ambitious statement of direction; Key Results are 2–4 measurable outcomes that would indicate you've achieved it. The most common failure mode is writing Key Results as tasks ("ship the redesign") instead of outcomes ("increase activation rate from 34% to 45%") — a shipped task tells you nothing about whether it worked. A second common failure: too many Objectives, which defeats the purpose of forcing focus.</p>
+      <div class="framebox">
+        <div class="flabel">A QUICK TEST</div>
+        <p>If a Key Result could be "achieved" by shipping the wrong thing badly (technically shipped, metric didn't move), it's actually an output disguised as an outcome. Rewrite it around the metric, not the deliverable.</p>
+      </div>
+      <h3><span class="fnum">02</span>North Star Metrics</h3>
+      <p>A North Star Metric is the single measure that best captures the core value your product delivers to customers, chosen so that moving it up reliably correlates with business success — Airbnb's is nights booked, not signups; Spotify's is time spent listening, not downloads. A good North Star sits upstream of revenue (it predicts revenue rather than just re-measuring it) and is directly influenceable by product decisions, which is what makes it more useful day-to-day than a lagging business metric like quarterly revenue.</p>
+      <h3><span class="fnum">03</span>Leading vs. lagging indicators</h3>
+      <p>Lagging indicators (revenue, churn at quarter-end) tell you the outcome after it's too late to change it. Leading indicators (activation rate, weekly active usage, feature adoption in week one) predict the lagging outcome early enough to act on it. Good metrics dashboards pair one lagging "did it work" indicator with two or three leading indicators the team can actually move week to week.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Write your team's current top Key Result. Check it against the test above — is it truly an outcome, or a task with a deadline attached? If it's the latter, rewrite it as a metric with a target.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'data', title:'Data & Analytics for Decisions',
+  blurb:'Reading and running the experiments and metrics that separate a validated decision from a good guess.',
+  lessons:[
+    {
+      title:'Experimentation & A/B Testing',
+      minutes:19,
+      html:`
+      <p>A/B testing is the closest thing product has to a scientific method, and it's also one of the most frequently misused tools in the PM toolkit. This lesson covers enough statistics to avoid the common traps.</p>
+      <h3><span class="fnum">01</span>The core logic</h3>
+      <p>Randomly split users into a control group (existing experience) and one or more treatment groups (the change being tested), so that any difference in outcome between groups can be attributed to the change itself rather than to who happened to be in each group. Randomization is what makes causal claims possible — without it, you're doing correlation, not experimentation.</p>
+      <h3><span class="fnum">02</span>Statistical significance, in plain terms</h3>
+      <ul>
+        <li><strong>p-value</strong> — the probability of seeing a result at least this extreme if there were actually no real difference between groups. A common (if imperfect) convention is treating p &lt; 0.05 as "statistically significant" — meaning less than a 5% chance the observed difference is just noise.</li>
+        <li><strong>Statistical power</strong> — the probability of detecting a real effect if one truly exists, driven mainly by sample size. Underpowered tests (too few users, too short a duration) routinely produce false negatives — "no significant difference" that actually just means "not enough data to tell."</li>
+        <li><strong>Minimum detectable effect (MDE)</strong> — the smallest effect size a test is designed to reliably detect, given sample size and duration. Before running a test, calculate whether your available traffic can even detect an effect size worth caring about — if not, the test isn't worth running as designed.</li>
+      </ul>
+      <h3><span class="fnum">03</span>Common traps</h3>
+      <ul>
+        <li><strong>Peeking</strong> — checking results early and stopping as soon as they look significant inflates false positive rates dramatically. Decide sample size and duration in advance and stick to it.</li>
+        <li><strong>Multiple comparisons</strong> — testing many metrics at once and reporting whichever one moved. With enough metrics, something will look significant by chance alone — pre-register your primary metric before the test runs.</li>
+        <li><strong>Novelty effects</strong> — a change performs well initially simply because it's new and different, not because it's actually better; effects that fade over a few weeks are a signal of novelty, not durable improvement.</li>
+        <li><strong>Simpson's Paradox</strong> — a trend that holds in several different groups can reverse when the groups are combined, usually because of an uneven mix of segments between control and treatment. Always check whether an aggregate result holds within key subgroups before trusting it.</li>
+      </ul>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Next time you review an A/B test result, ask three questions before trusting it: was the sample size determined in advance, was there one pre-registered primary metric, and does the effect hold up when segmented by your two or three most important user cohorts?</p>
+      </div>`
+    },
+    {
+      title:'Cohort Analysis & Funnel Metrics',
+      minutes:16,
+      html:`
+      <p>Aggregate metrics ("total users") hide almost everything useful. Cohort and funnel thinking is how you actually see what's happening underneath the top-line number.</p>
+      <h3><span class="fnum">01</span>Cohort analysis</h3>
+      <p>A cohort is a group of users who share a starting point in time (e.g., everyone who signed up in March), tracked over subsequent time periods rather than compared against everyone regardless of tenure. Cohort retention curves reveal whether a product is actually improving: if the March cohort retains better at day 30 than the January cohort did, something genuinely got better — a comparison the aggregate "monthly active users" number can't make, because it blends long-tenured loyal users with brand-new ones and can look flat or growing even while retention is quietly getting worse.</p>
+      <div class="framebox">
+        <div class="flabel">THE SMILE CURVE</div>
+        <p>A healthy retention curve declines initially (some users churn quickly — normal) and then flattens into a stable, low, non-zero rate — the "smile curve," because it dips and then holds flat rather than continuing toward zero. A curve that keeps declining toward zero indicates a product without a durable core user base, no matter how strong initial signups look.</p>
+      </div>
+      <h3><span class="fnum">02</span>Funnel metrics</h3>
+      <p>A funnel breaks a multi-step process (signup → activation → first key action → habitual use → paid conversion) into stages and measures the conversion rate between each. The value of funnel analysis is localization: instead of "conversion is bad," you learn precisely which step is bleeding users, which turns a vague problem into a specific, ownable one.</p>
+      <ul>
+        <li><strong>Activation rate</strong> — % of new users who reach a defined "aha moment" tied to the product's core value, within a defined window. Choosing the right activation event (not too early/trivial, not too late/rare) is one of the highest-leverage analytics decisions a product team makes.</li>
+        <li><strong>Time-to-value</strong> — how long it takes a new user to reach that activation moment. Shortening it is consistently one of the highest-ROI product investments in early-stage growth.</li>
+      </ul>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Pull your product's day-30 retention curve segmented by signup cohort over the last 6 months. If you don't have this dashboard, building it is usually a better use of a sprint than most individual features — you can't prioritize retention work without seeing where retention actually breaks.</p>
+      </div>`
+    },
+    {
+      title:'Data-Informed Decisions & Statistical Pitfalls',
+      minutes:15,
+      html:`
+      <p>Being "data-driven" is aspirational; being data-informed while knowing where the data lies to you is the actually achievable and more useful skill.</p>
+      <h3><span class="fnum">01</span>Correlation vs. causation, applied</h3>
+      <p>Users who use a feature retain better than users who don't — a pattern product teams see constantly and routinely over-interpret. The confound: engaged users who were always going to retain well are also the users most likely to discover and use any given feature. The feature may be a marker of engagement rather than a cause of it. The only way to separate these cleanly is a randomized experiment (see the A/B testing lesson) — observational correlation, however strong, can't do it alone.</p>
+      <h3><span class="fnum">02</span>Survivorship bias</h3>
+      <p>Analyzing only the customers who are still around (and concluding "our best customers all do X") ignores the customers who did X and churned anyway. Any analysis of "what our best/successful customers have in common" needs a comparison against churned customers doing the same thing, or the pattern is close to meaningless.</p>
+      <h3><span class="fnum">03</span>Base rate neglect</h3>
+      <p>A feature "used by 40% of power users" sounds significant until you check what fraction of all users are power users — if power users are 2% of the base, that 40% number describes a tiny slice of the business. Always sanity-check a compelling percentage against the size of the underlying group.</p>
+      <h3><span class="fnum">04</span>Goodhart's Law</h3>
+      <p>"When a measure becomes a target, it ceases to be a good measure." Optimizing hard for a single metric creates strong incentive to game it in ways that technically move the number without moving the underlying thing it was meant to represent — a support team measured purely on ticket-closure speed will close tickets fast without necessarily resolving them. Pair every optimization metric with at least one guardrail metric that would catch the gaming.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take a metric your team currently optimizes hard for. Name one way someone could technically improve that number while making the actual customer experience worse. If you can name one easily, you're missing a guardrail metric.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'orgbehavior', title:'Organizational Behavior & Leadership',
+  blurb:'How teams, incentives, and influence actually work — the human system underneath every roadmap.',
+  lessons:[
+    {
+      title:'Leading Through Influence, Not Authority',
+      minutes:16,
+      html:`
+      <p>Most PMs have zero direct reports and enormous accountability — the classic "responsibility without authority" problem. This lesson covers the actual mechanics of getting cross-functional teams to move without being able to order anyone to do anything.</p>
+      <h3><span class="fnum">01</span>The sources of influence that don't require a title</h3>
+      <ul>
+        <li><strong>Expertise</strong> — being the most credible source of insight into the customer, the market, or the data earns deference even from people who don't report to you.</li>
+        <li><strong>Reciprocity</strong> — having genuinely helped someone before (unblocked them, advocated for their team, made their life easier) creates a real, if informal, obligation.</li>
+        <li><strong>Clarity</strong> — in ambiguous cross-functional situations, the person who shows up with the clearest, most well-reasoned framing of the problem and options often ends up steering the decision by default, regardless of formal authority.</li>
+        <li><strong>Relationship capital</strong> — trust built over repeated interactions where you were straight with people, even about bad news, compounds into people giving you the benefit of the doubt when it matters.</li>
+      </ul>
+      <h3><span class="fnum">02</span>RACI, applied honestly</h3>
+      <p>Responsible (does the work), Accountable (owns the outcome — should be one person), Consulted (input sought before a decision), Informed (told after a decision). Most cross-functional dysfunction traces back to a fuzzy Accountable — either nobody has it, or too many people believe they do. Making RACI explicit at the start of an initiative, even informally in a doc, resolves more conflict than any amount of interpersonal skill applied after the fact.</p>
+      <h3><span class="fnum">03</span>Managing up</h3>
+      <p>The core skill is translating your work into what your manager or exec sponsor needs to make their own decisions well: risks framed with options attached (not just "here's a problem"), status framed against the objective rather than the task list, and asks framed as specific decisions needed by a specific date rather than open-ended updates.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>For your current highest-stakes cross-functional initiative, write down who you believe is Accountable. Then ask the two or three other key people involved who they think is Accountable. Any mismatch is worth resolving explicitly before it causes a conflict later.</p>
+      </div>`
+    },
+    {
+      title:"Org Design & Conway's Law",
+      minutes:15,
+      html:`
+      <p>How a company is structured isn't just an HR chart — it's one of the strongest hidden forces shaping what products actually get built and how well they hang together.</p>
+      <h3><span class="fnum">01</span>Conway's Law</h3>
+      <p>"Organizations design systems that mirror their own communication structure." If three teams own three parts of a product with weak communication between them, the product will likely ship with three seams that feel disjointed to the user — regardless of how good the individual designs are — because the org structure, not a deliberate design choice, decided where the boundaries fall. The "Inverse Conway Maneuver" flips this deliberately: design the org structure you want the product's architecture to have, then let the org produce it.</p>
+      <h3><span class="fnum">02</span>Team topologies</h3>
+      <ul>
+        <li><strong>Functional teams</strong> — grouped by discipline (all designers together, all backend engineers together). Deep specialization, but slow handoffs between teams for any end-to-end feature.</li>
+        <li><strong>Cross-functional / stream-aligned teams</strong> — grouped around a product area or customer journey, with the mix of disciplines needed to ship it end-to-end. Faster iteration, but risk of duplicated effort and inconsistent patterns across teams without strong platform investment.</li>
+        <li><strong>Platform teams</strong> — build internal infrastructure and tools that other teams consume as a product, reducing duplicated work across stream-aligned teams. The trap: a platform team that doesn't treat its internal users' experience with real product discipline becomes a bottleneck instead of an accelerant.</li>
+      </ul>
+      <h3><span class="fnum">03</span>Span of control and coordination cost</h3>
+      <p>Coordination overhead grows roughly with the square of team size (more people, exponentially more communication links) — which is the underlying reason small, focused teams routinely out-execute larger ones on the same problem, and why splitting a team is often a bigger unlock than adding headcount to it.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Look at a recent product inconsistency users have complained about — a seam between two areas that doesn't feel unified. Trace it back to whether two different teams own the two sides, with limited shared context. If so, that's Conway's Law, and the fix may need to be organizational, not just a design review.</p>
+      </div>`
+    },
+    {
+      title:'Change Management & Stakeholder Alignment',
+      minutes:16,
+      html:`
+      <p>The best strategy in the world fails if the organization won't actually change its behavior to execute it. This lesson covers the mechanics of driving change through people who didn't ask for it.</p>
+      <h3><span class="fnum">01</span>Kotter's 8-step model, compressed</h3>
+      <p>John Kotter's framework, still the most cited change-management model, in essence: (1) create urgency people actually feel, not just a slide saying "this is urgent," (2) build a coalition of credible allies rather than mandating from one voice, (3) craft a clear, simple vision for the change, (4) over-communicate that vision constantly — far more than feels necessary, (5) remove structural obstacles blocking the change, (6) generate visible short-term wins to build momentum and credibility, (7) keep pushing rather than declaring victory early, (8) anchor the change into culture and norms so it survives after the initial push fades.</p>
+      <div class="framebox">
+        <div class="flabel">THE MOST SKIPPED STEP</div>
+        <p>Step 4 — over-communication — is the step most product and technical leaders underinvest in, because they've internalized the change and forget everyone else hasn't heard it enough times yet to believe it's real and permanent. A rule of thumb: by the time you're sick of saying it, the organization is just starting to actually hear it.</p>
+      </div>
+      <h3><span class="fnum">02</span>Stakeholder mapping</h3>
+      <p>A simple 2x2 of influence (how much power this person has over the outcome) against interest (how much they care about this specific initiative) sorts stakeholders into four groups needing different treatment: high influence/high interest — manage closely, involve directly in decisions; high influence/low interest — keep satisfied with concise, infrequent updates, don't overload them; low influence/high interest — keep informed, they can become allies or vocal critics; low influence/low interest — monitor with minimal effort. Misreading someone as low-influence when they're actually a quiet gatekeeper is one of the most common causes of a late-stage stakeholder ambush.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>For your current highest-risk initiative, place your 5–8 key stakeholders on the influence/interest grid honestly, including the ones you'd rather not think about. Check whether your current communication plan actually matches what each quadrant needs.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'techops', title:'Operations & Technical Fluency',
+  blurb:'Enough systems, delivery-model, and technical literacy to be credible in engineering conversations.',
+  lessons:[
+    {
+      title:'Delivery Models: Agile, Lean, and Shape Up',
+      minutes:17,
+      html:`
+      <p>Every engineering org runs on some delivery philosophy, usually inherited rather than chosen deliberately. Knowing the real differences helps you work with the model you have and spot when it's the source of a team's dysfunction.</p>
+      <h3><span class="fnum">01</span>Agile / Scrum, the actual intent</h3>
+      <p>Agile's core idea, from the 2001 manifesto, is responding to change over following a rigid plan, via short iterative cycles with frequent feedback rather than a single long upfront plan. Scrum is one specific implementation: fixed-length sprints, a defined backlog, daily standups, sprint reviews, and retrospectives. The most common failure isn't the framework — it's "cargo cult Scrum," where teams run every ceremony religiously without the underlying spirit of rapid feedback and adaptation, turning it into bureaucracy with extra meetings.</p>
+      <h3><span class="fnum">02</span>Lean principles</h3>
+      <p>Borrowed from Toyota's manufacturing system: eliminate waste (work that doesn't create customer value), build quality in rather than inspecting for it after the fact, and pursue fast feedback loops so problems surface while they're still cheap to fix. In software, "waste" typically means: features nobody uses, work in progress that's blocked and idle, and handoffs that lose context between people.</p>
+      <h3><span class="fnum">03</span>Shape Up</h3>
+      <p>Basecamp's alternative to sprint-based Scrum: work is "shaped" at a rough level (defined boundaries and risks, not detailed specs) by a small senior group, then handed to a team for a fixed appetite (typically a 6-week cycle) with real autonomy over the how. No backlog of tickets carried indefinitely — unshipped work at the end of a cycle is a genuine decision point (kill it, reshape it, don't just roll it forward by default), and a "cooldown" period between cycles gives space for bug fixing, exploration, and shaping the next bet properly rather than every cycle running back-to-back.</p>
+      <div class="framebox">
+        <div class="flabel">CHOOSING BETWEEN THEM</div>
+        <p>Scrum suits well-understood, incrementally evolving work with a steady cadence of small deliverables. Shape Up suits meatier, more ambiguous bets where a fixed time-box with real appetite constraints forces better scoping than an open-ended backlog would. Many mature product orgs blend elements of both rather than adopting either dogmatically.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Name one recurring friction in your team's current delivery process. Check whether it's a framework problem (the model genuinely doesn't fit the type of work) or an execution problem (the model is fine, it's just not being run with its original intent). The fix is very different depending on which it is.</p>
+      </div>`
+    },
+    {
+      title:'Technical Literacy: Architecture, APIs & Tech Debt',
+      minutes:20,
+      html:`
+      <p>You don't need to write production code to be a strong technical PM. You need enough of a mental model to ask good questions, understand trade-offs engineers are weighing, and avoid asking for things that sound simple but aren't.</p>
+      <h3><span class="fnum">01</span>APIs, in plain terms</h3>
+      <p>An API (Application Programming Interface) is a defined contract that lets one piece of software request something from another without needing to know how the other one works internally — like a restaurant menu: you order by name, you don't need to know the kitchen's process. Well-designed APIs are stable and backward-compatible so other teams (or external developers) can build on them confidently; breaking an API contract can silently break every downstream system depending on it, which is why API changes get reviewed far more cautiously than internal-only code changes.</p>
+      <h3><span class="fnum">02</span>Monolith vs. microservices</h3>
+      <p>A monolith is one large, unified codebase and deployment unit — simpler to build and reason about early on, but changes anywhere require redeploying and testing the whole thing, which slows teams down as the system and org grow. Microservices split the system into smaller, independently deployable services communicating over APIs — faster independent iteration and scaling per service, at the cost of real operational complexity (network calls between services can fail in ways in-process function calls can't, and debugging a problem now means tracing it across service boundaries). Most companies migrate from monolith toward microservices as they scale, and the trigger is usually organizational (many teams stepping on each other in one codebase) as much as technical.</p>
+      <h3><span class="fnum">03</span>Technical debt</h3>
+      <p>A useful, honest metaphor: shortcuts taken to ship faster now create ongoing "interest payments" (slower future development, more bugs, harder onboarding for new engineers) until the "principal" is paid down through refactoring. Debt isn't inherently bad — deliberately taking some on to hit a real deadline is often the right call, exactly like financial debt used to fund a genuine opportunity. The failure mode is accumulating debt unconsciously, with no visibility or plan to pay it back, until velocity quietly collapses and nobody can point to why.</p>
+      <div class="framebox">
+        <div class="flabel">A PM'S JOB WITH TECH DEBT</div>
+        <p>You're not expected to assess technical debt yourself, but you are expected to make room for paying it down on the roadmap rather than treating every cycle as 100% new feature work — and to ask engineering directly "what's slowing us down that isn't visible on the roadmap" at least once a quarter.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Ask an engineer on your team to walk you through your product's architecture at a whiteboard level — the major services/components and how they talk to each other. Twenty minutes of this pays off in every future scoping conversation.</p>
+      </div>`
+    },
+    {
+      title:'Operations Thinking Applied to Software',
+      minutes:15,
+      html:`
+      <p>Classic operations management was built for factories, but the underlying logic — throughput, bottlenecks, queues, variability — maps onto software delivery and support operations more directly than most PMs realize.</p>
+      <h3><span class="fnum">01</span>Theory of Constraints</h3>
+      <p>Eliyahu Goldratt's core insight: a system's overall output is limited by its single tightest bottleneck, and improving any other part of the system does nothing for total throughput until that bottleneck itself is addressed. In a product org, the bottleneck might be design review, QA capacity, or a single engineer who's the only one who understands a critical legacy system. Improving the wrong bottleneck feels productive and moves nothing — worth checking before rounds of "let's just work faster."</p>
+      <h3><span class="fnum">02</span>Queueing and variability</h3>
+      <p>Work waiting to be picked up (a PR queue, a support ticket backlog, a design review queue) behaves like queueing theory predicts: as a resource approaches full utilization, wait times don't increase linearly — they increase sharply, because there's no slack left to absorb normal variability in how long each task takes. This is the underlying reason "just keep everyone 100% utilized" backfires — a team run at full capacity handles the unexpected far worse than one with deliberate slack, and total cycle time often goes up, not down.</p>
+      <h3><span class="fnum">03</span>Little's Law</h3>
+      <p>A clean operations formula that applies directly to software delivery: <strong>average time in system = average number of items in progress ÷ average completion rate</strong>. In practice: the more work-in-progress a team is juggling at once, the longer each individual thing takes to actually finish, even if the team's total completion rate doesn't change — a big part of why limiting WIP (work in progress) is a core kanban practice, not just a nice-to-have.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Look at your team's current work-in-progress count versus team size. If WIP is meaningfully higher than headcount, Little's Law predicts things are taking longer to ship than they need to — worth testing by deliberately capping WIP for a cycle and watching cycle time.</p>
+      </div>`
+    }
+  ]
+},
+{
+  id:'negotiation', title:'Negotiation & Executive Finance',
+  blurb:'The interpersonal and capital-allocation skills for getting resourced, getting buy-in, and reading investment decisions.',
+  lessons:[
+    {
+      title:'Negotiation Fundamentals: BATNA, ZOPA & Anchoring',
+      minutes:16,
+      html:`
+      <p>PMs negotiate constantly — for headcount, for scope, with vendors, in comp conversations — usually without ever calling it "negotiation." The core academic frameworks (largely from Getting to Yes and the Harvard Negotiation Project) sharpen instinct into method.</p>
+      <h3><span class="fnum">01</span>BATNA: your real leverage</h3>
+      <p>Best Alternative To a Negotiated Agreement — what you'll do if this negotiation fails entirely. Your negotiating power comes almost entirely from your BATNA, not from how persuasively you argue: a strong BATNA (you're genuinely fine walking away) lets you hold firm calmly; a weak BATNA (you desperately need this deal) undermines your position no matter how skilled the negotiation tactics. The practical takeaway: before any important negotiation, deliberately strengthen or at least clarify your BATNA — know precisely what happens if you don't get the resourcing, the deal, the offer.</p>
+      <h3><span class="fnum">02</span>ZOPA: where a deal can actually happen</h3>
+      <p>Zone of Possible Agreement — the range between each party's walk-away point (reservation price) where a deal could satisfy both sides. If the ranges don't overlap at all, no negotiation tactic can manufacture a deal — the honest move is recognizing that early rather than grinding through a negotiation that can't succeed.</p>
+      <h3><span class="fnum">03</span>Anchoring and interests vs. positions</h3>
+      <p>The first credible number stated in a negotiation disproportionately shapes the final outcome (anchoring bias) — there's real value in making a well-researched first offer rather than waiting passively. Separately, Getting to Yes's most durable idea: negotiate over underlying <strong>interests</strong> (why someone wants what they're asking for) rather than stated <strong>positions</strong> (the specific ask itself), because two parties with opposed positions often have compatible or even complementary underlying interests once you dig one layer down — which is where genuinely creative, non-zero-sum solutions come from.</p>
+      <div class="framebox">
+        <div class="flabel">FOR RESOURCING NEGOTIATIONS SPECIFICALLY</div>
+        <p>When asking engineering leadership for headcount or asking finance for budget, the underlying interest on their side is rarely "say no to you" — it's usually risk management, or a competing claim on the same scarce resource. Understanding what they're actually protecting against changes the ask you make.</p>
+      </div>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Before your next resourcing or scope negotiation, write down your own BATNA honestly, and your best guess at the other party's underlying interest (not their stated position). Both usually change what you decide to ask for.</p>
+      </div>`
+    },
+    {
+      title:'Valuation, NPV & Investment Basics',
+      minutes:18,
+      html:`
+      <p>A working knowledge of how investment decisions get evaluated — at the company level and the individual-project level — lets you build a roadmap business case that survives contact with a CFO.</p>
+      <h3><span class="fnum">01</span>Net Present Value (NPV), the core idea</h3>
+      <p>A dollar today is worth more than a dollar next year, because today's dollar can be invested and earn a return in the meantime. NPV discounts future cash flows back to today's terms using a discount rate (reflecting risk and opportunity cost), then sums them. A positive NPV means a project is expected to create more value than it costs, after accounting for that time value; a negative NPV means it destroys value even if the raw undiscounted numbers look positive.</p>
+      <div class="framebox">
+        <div class="flabel">WHY THIS BEATS "IT'LL GENERATE $X"</div>
+        <p>A roadmap pitch that says "this will generate $2M in year 3" sounds compelling until someone asks what it cost to build, what else that money could have earned, and how certain that $2M really is. NPV-style thinking — even done roughly, without a spreadsheet — forces those questions into the pitch from the start.</p>
+      </div>
+      <h3><span class="fnum">02</span>ROI and payback period, the PM-friendly versions</h3>
+      <p><strong>ROI</strong> = (gain from investment − cost of investment) ÷ cost of investment, usually expressed as a percentage. Simple and intuitive, but ignores timing — a 50% ROI over 1 year and a 50% ROI over 5 years are very different outcomes it treats as equal. <strong>Payback period</strong> — how long until cumulative returns equal the initial cost — is a rougher but often more practical framing for a roadmap pitch, since "we recoup this investment in 8 months" is a sentence any stakeholder immediately understands.</p>
+      <h3><span class="fnum">03</span>Valuation multiples, at a glance</h3>
+      <p>Companies are commonly valued as a multiple of a metric — revenue multiples (common for high-growth companies not yet profitable) or earnings multiples like P/E (common for mature, profitable companies). SaaS companies often get valued on a multiple of ARR (Annual Recurring Revenue), with the multiple itself driven by growth rate, margin, and retention — which is part of why NRR (from the finance lesson) gets so much executive attention: it directly affects the multiple the whole company is valued at, not just one team's metrics.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take a project you're currently pitching for resourcing. Write the payback period in one sentence: roughly how many months until the expected value generated equals the cost to build and maintain it. If you can't estimate this even roughly, the business case likely needs more work before the next resourcing conversation.</p>
+      </div>`
+    },
+    {
+      title:'Executive Communication & Career Capital',
+      minutes:14,
+      html:`
+      <p>The last lesson in this track is the most practically valuable and the least taught formally: how to communicate like someone operating at the level you want to be evaluated at, and how to build the kind of reputation that compounds across a career rather than a single role.</p>
+      <h3><span class="fnum">01</span>The pyramid principle</h3>
+      <p>Barbara Minto's structure, standard at McKinsey and most strategy functions: lead with the conclusion or recommendation first, then support it with the two or three reasons behind it, then back each reason with evidence — top-down, not the chronological "here's what we did, and here's what we found, and therefore..." build-up most people default to. Executives and time-constrained stakeholders read the first sentence and decide how much attention the rest deserves; burying the recommendation on page three of a document virtually guarantees it gets skimmed or missed.</p>
+      <h3><span class="fnum">02</span>Framing risk and asks</h3>
+      <p>A strong update states the situation, the risk in specific terms, the options considered (not just the one you picked), and the specific decision or resource needed — with a date attached. "Just flagging this as a risk" without a recommendation or an ask puts the cognitive burden of figuring out next steps back on the reader, which is exactly the work a good update is supposed to remove from them.</p>
+      <h3><span class="fnum">03</span>Career capital, not just performance</h3>
+      <p>Cal Newport's framing, useful beyond its original context: rare and valuable skills are the currency that buys career control — the ability to choose better projects, negotiate for more autonomy, and move into bigger roles. This reframes "what should I get good at" away from whatever's trendy and toward whatever combination of skills is both genuinely rare and genuinely valued where you want to end up — technical fluency plus strategic judgment plus the communication skills in this lesson is a durable and uncommon combination precisely because most people are strong in only one of the three.</p>
+      <div class="apply">
+        <div class="flabel">TRY THIS</div>
+        <p>Take the next status update or risk flag you're about to send. Rewrite the first sentence so it states your recommendation or the decision you need, not a narrative lead-in. Everything else moves down to support it.</p>
+      </div>`
+    }
+  ]
+}
+];
+
+// ---------- App state ----------
+const STORAGE_KEY = 'mba-core-progress-v1';
+let currentLessonKey = null; // "sectionIdx-lessonIdx"
+let openSection = null;
+
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return new Set(parsed.completed||[]);
+    }
+  }catch(e){ /* localStorage unavailable — fall back to in-memory only */ }
+  return new Set();
+}
+function saveProgress(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({completed:[...completed]}));
+  }catch(e){ /* ignore — progress just won't persist this session */ }
+}
+let completed = loadProgress();
+
+function lessonKey(si,li){return si+'-'+li;}
+function allLessonsFlat(){
+  const flat=[];
+  SECTIONS.forEach((s,si)=>s.lessons.forEach((l,li)=>flat.push({si,li,s,l})));
+  return flat;
+}
+const FLAT = allLessonsFlat();
+const TOTAL = FLAT.length;
+
+function renderNav(){
+  const nav = document.getElementById('navSections');
+  nav.innerHTML='';
+  SECTIONS.forEach((sec,si)=>{
+    const wrap=document.createElement('div');
+    wrap.className='nav-section'+(openSection===si?' open':'');
+    const doneCount = sec.lessons.filter((l,li)=>completed.has(lessonKey(si,li))).length;
+    wrap.innerHTML = `
+      <button class="nav-section-btn" data-si="${si}">
+        <span>${sec.title}</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span class="count">${doneCount}/${sec.lessons.length}</span>
+          <span class="chev">▸</span>
+        </span>
+      </button>
+      <div class="nav-lessons">
+        ${sec.lessons.map((l,li)=>{
+          const key=lessonKey(si,li);
+          const active = key===currentLessonKey?' active':'';
+          const done = completed.has(key)?' done':'';
+          return `<button class="nav-lesson${active}${done}" data-si="${si}" data-li="${li}">
+            <span class="dot">${completed.has(key)?'✓':''}</span>
+            <span class="lt">${l.title}</span>
+            <span class="mins">${l.minutes}m</span>
+          </button>`;
+        }).join('')}
+      </div>`;
+    nav.appendChild(wrap);
+  });
+  nav.querySelectorAll('.nav-section-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const si=parseInt(btn.dataset.si);
+      openSection = openSection===si ? null : si;
+      renderNav();
+    });
+  });
+  nav.querySelectorAll('.nav-lesson').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      goTo(parseInt(btn.dataset.si),parseInt(btn.dataset.li));
+      closeRailMobile();
+    });
+  });
+  updateProgressBar();
+}
+
+function updateProgressBar(){
+  const pct = Math.round((completed.size/TOTAL)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = completed.size+' of '+TOTAL+' lessons complete';
+}
+
+function goTo(si,li){
+  currentLessonKey = lessonKey(si,li);
+  openSection = si;
+  renderNav();
+  renderLesson(si,li);
+  window.scrollTo(0,0);
+}
+
+function markDone(si,li){
+  completed.add(lessonKey(si,li));
+  saveProgress();
+  renderNav();
+  renderLesson(si,li);
+}
+
+function renderHome(){
+  currentLessonKey=null;
+  const sheet=document.getElementById('sheet');
+  const totalMins = FLAT.reduce((a,f)=>a+f.l.minutes,0);
+  sheet.innerHTML = `
+    <div class="home">
+      <div class="lesson-eyebrow"><span class="pill">${SECTIONS.length} sections · ${TOTAL} lessons · ~${totalMins} min total</span></div>
+      <h2>Start here</h2>
+      <p>A condensed MBA core, weighted toward what actually comes up running product at a tech company — strategy, unit economics, discovery, experimentation, org design, and the executive communication skills that go with it. Each lesson is scoped to 15–20 minutes. Pick a section on the left, or jump into the first one below.</p>
+      <div class="home-grid">
+        ${SECTIONS.map((s,si)=>{
+          const doneCount = s.lessons.filter((l,li)=>completed.has(lessonKey(si,li))).length;
+          return `<div class="home-card" data-si="${si}">
+            <div>
+              <h4>${s.title}</h4>
+              <p>${s.blurb}</p>
+            </div>
+            <div class="stat">${doneCount}/${s.lessons.length} done</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  sheet.querySelectorAll('.home-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const si=parseInt(card.dataset.si);
+      goTo(si,0);
+    });
+  });
+  renderNav();
+}
+
+function renderLesson(si,li){
+  const sec = SECTIONS[si];
+  const lesson = sec.lessons[li];
+  const key = lessonKey(si,li);
+  const isDone = completed.has(key);
+  const sheet = document.getElementById('sheet');
+
+  const isFirst = si===0 && li===0;
+  const isLast = si===SECTIONS.length-1 && li===sec.lessons.length-1;
+
+  sheet.innerHTML = `
+    <div class="lesson-eyebrow">
+      <span class="pill">${sec.title}</span>
+      <span>${lesson.minutes} min read</span>
+    </div>
+    <h1 class="lesson-title">${lesson.title}</h1>
+    <div class="content">${lesson.html}</div>
+    <div class="lesson-nav">
+      <button class="navbtn ghost" id="prevBtn" ${isFirst?'disabled':''}>← Previous</button>
+      <button class="navbtn ${isDone?'done':''}" id="doneBtn">${isDone?'✓ Completed':'Mark complete'}</button>
+      <button class="navbtn ghost" id="nextBtn" ${isLast?'disabled':''}>Next →</button>
+    </div>
+  `;
+
+  document.getElementById('doneBtn').addEventListener('click',()=>{
+    if(!completed.has(key)) markDone(si,li);
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    let pi=si, pl=li-1;
+    if(pl<0){pi=si-1; pl=SECTIONS[pi].lessons.length-1;}
+    if(pi>=0) goTo(pi,pl);
+  });
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    let ni=si, nl=li+1;
+    if(nl>=sec.lessons.length){ni=si+1; nl=0;}
+    if(ni<SECTIONS.length) goTo(ni,nl);
+  });
+}
+
+// mobile rail toggle
+function closeRailMobile(){
+  document.getElementById('rail').classList.remove('open');
+  document.getElementById('scrim').classList.remove('show');
+}
+document.getElementById('menuToggle').addEventListener('click',()=>{
+  document.getElementById('rail').classList.toggle('open');
+  document.getElementById('scrim').classList.toggle('show');
+});
+document.getElementById('scrim').addEventListener('click',closeRailMobile);
+
+renderHome();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {/* offline caching unavailable, app still works online */});
+  });
+}
+
+</script>
+</body>
+</html>
